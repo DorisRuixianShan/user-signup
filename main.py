@@ -37,12 +37,12 @@ page_header = """
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Signup</title>
-        <style>
-            .error {
-                color: red;
-            }
-        </style>
+    <title>Signup</title>
+    <style>
+    .error {
+    color: red;
+    }
+    </style>
     </head>
     <body>
     <h1>Signup</h1>
@@ -60,34 +60,34 @@ class Signup(webapp2.RequestHandler):
         form="""
             <form action="welcome" method="post">
             <table>
-                <tr>
-                    <td><label for="username">Username</label></td>
-                    <td>
-                        <input name="username" type="text" value="" required>
-                        <span class="error"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label for="password">Password</label></td>
-                    <td>
-                        <input name="password" type="password" required>
-                        <span class="error"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label for="verify">Verify Password</label></td>
-                    <td>
-                        <input name="verify" type="password" required>
-                        <span class="error"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><label for="email">Email (optional)</label></td>
-                    <td>
-                        <input name="email" type="email" value="">
-                        <span class="error"></span>
-                    </td>
-                </tr>
+            <tr>
+            <td><label for="username">Username</label></td>
+            <td>
+            <input name="username" type="text" value="" required>
+            <span class="error"></span>
+            </td>
+            </tr>
+            <tr>
+            <td><label for="password">Password</label></td>
+            <td>
+            <input name="password" type="password" required>
+            <span class="error"></span>
+            </td>
+            </tr>
+            <tr>
+            <td><label for="verify">Verify Password</label></td>
+            <td>
+            <input name="verify" type="password" required>
+            <span class="error"></span>
+            </td>
+            </tr>
+            <tr>
+            <td><label for="email">Email (optional)</label></td>
+            <td>
+            <input name="email" type="email" value="">
+            <span class="error"></span>
+            </td>
+            </tr>
             </table>
             <input type="submit">
             </form>"""
@@ -95,8 +95,8 @@ class Signup(webapp2.RequestHandler):
         error = self.request.get("error")
         if error:
             error_element=("<p class='error'>"+
-                               cgi.escape(error,quote=True)+
-                               "</p>")
+                           cgi.escape(error,quote=True)+
+                           "</p>")
         else:
             error_element = ""
 
@@ -135,11 +135,10 @@ class Welcome(webapp2.RequestHandler):
 
         welcome= "Welcome, "+username+"!"
         welcome_element="<h1>"+welcome+"</h1>"
-
         self.response.write(welcome_element)
 
 
 app = webapp2.WSGIApplication([
-    ('/', Signup),
-    ('/welcome',Welcome)
-], debug=True)
+                               ('/', Signup),
+                               ('/welcome',Welcome)
+                               ], debug=True)
