@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 import os
 import re
 from string import letters
@@ -54,91 +54,112 @@ page_footer = """
     </html>
     """
 
+form="""
+    <form method="post">
+        <table>
+            <tr>
+            <td><label name="username">Username</label></td>
+            <td>
+            <input name="username" type="text" value="%(username)s" required>
+            <span class="error">%(username_error)s</span>
+            </td>
+            </tr>
 
-class Signup(webapp2.RequestHandler):
-    def get(self):
-        form="""
-            <form action="welcome" method="post">
-            <table>
             <tr>
-            <td><label for="username">Username</label></td>
+            <td><label name="password">Password</label></td>
             <td>
-            <input name="username" type="text" value="" required>
-            <span class="error"></span>
+            <input name="password" type="password"  required>
+            <span class="error">%(password_error)s</span>
             </td>
             </tr>
-            <tr>
-            <td><label for="password">Password</label></td>
-            <td>
-            <input name="password" type="password" required>
-            <span class="error"></span>
-            </td>
-            </tr>
+
             <tr>
             <td><label for="verify">Verify Password</label></td>
             <td>
             <input name="verify" type="password" required>
-            <span class="error"></span>
+            <span class="error">%(verify_error)s</span>
             </td>
             </tr>
+
             <tr>
             <td><label for="email">Email (optional)</label></td>
             <td>
-            <input name="email" type="email" value="">
-            <span class="error"></span>
+            <input name="email" type="email" value="%(email)s">
+            <span class="error">%(email_error)s</span>
             </td>
             </tr>
-            </table>
-            <input type="submit">
-            </form>"""
-
-        error = self.request.get("error")
-        if error:
-            error_element=("<p class='error'>"+
-                           cgi.escape(error,quote=True)+
-                           "</p>")
-        else:
-            error_element = ""
-
-        content=page_header+form + error_element + page_footer
-        self.response.write(content)
+        </table>
+        <input type="submit">
+    </form>"""
 
 
 
-class Welcome(webapp2.RequestHandler):
+content=page_header+form+page_footer
+
+class Signup(webapp2.RequestHandler):
+    def write_form(self,username="", email="",username_error="",password_error="",verify_error="",email_error=""):
+        self.response.out.write(content % {
+                                         "username":username,
+                                         "email":email,
+                                         "username_error":username_error,
+                                         "password_error":password_error,
+                                         "verify_error":verify_error,
+                                         "email_error":email_error
+                                         } )
+
+    def get(self):
+        self.write_form()
+
     def post(self):
         username=self.request.get("username")
         password=self.request.get("password")
         password_confirmation=self.request.get("verify")
         email=self.request.get("email")
 
-        error= None
+        ved_username = valid_username(username)
+        ved_password =valid_password(password)
+        ved_email = valid_email(email)
 
-        if username=="" or password=="" or password_confirmation=="":
-            error = "please fill out this field"
+        isError=False
+        username_error=""
+        password_error=""
+        email_error=""
+        verify_error=""
 
-        if not valid_username(username):
-            error="This is not a valid username!"
+        if not ved_username:
+            username_error="This is not a valid username."
+            isError=True
 
-        if not valid_password(password):
-            error= "This is not a valid password."
+        if not ved_password:
+            password_error="This is not a valid password."
+            isError=True
 
-        if not valid_email(email):
-            error= "This is not a valid email."
+        if not ved_email:
+            email_error="This is not a valid email."
+            isError=True
 
         if password != password_confirmation:
-            error="Passwords don't match"
+            verify_error="Passwords don't match."
+            isError=True
+
+        if isError:
+            self.write_form(username,email,username_error,password_error,verify_error,email_error)
+        else:
+            self.redirect("/welcome?username="+username)
 
 
-        if error != None:
-            self.redirect("/?error="+cgi.escape(error, quote=True))
+class Welcome(webapp2.RequestHandler):
+    def get(self):
+        username=self.request.get("username")
 
         welcome= "Welcome, "+username+"!"
         welcome_element="<h1>"+welcome+"</h1>"
         self.response.write(welcome_element)
 
 
+
+
 app = webapp2.WSGIApplication([
-                               ('/', Signup),
-                               ('/welcome',Welcome)
-                               ], debug=True)
+    ('/', Signup),
+    ('/welcome',Welcome)
+], debug=True)
